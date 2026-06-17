@@ -266,8 +266,6 @@ function formatDateString(rawDate) {
 // ==========================================================================
 // UI Rendering
 // ==========================================================================
-function renderFeed() {
-    // Filter notes
 function getFilteredNotes() {
     return notes.filter(note => {
         const matchesCategory = filters.category === 'all' || 
