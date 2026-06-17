@@ -1233,3 +1233,10 @@ body {
         opacity: 0;
     }
 }
+
+.w-full {
+    width: 100%;
+}
+.justify-center {
+    justify-content: center;
+}

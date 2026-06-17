@@ -27,6 +27,7 @@ const DOM = {
     statTotalCount: document.getElementById('stat-total-count'),
     statLatestDate: document.getElementById('stat-latest-date'),
     resetFiltersBtn: document.getElementById('reset-filters-btn'),
+    exportCsvBtn: document.getElementById('export-csv-btn'),
     
     // Drawer
     selectionDrawer: document.getElementById('selection-drawer'),
@@ -64,6 +65,9 @@ document.addEventListener('DOMContentLoaded', () => {
 function bindEvents() {
     // Refresh feed
     DOM.refreshBtn.addEventListener('click', () => fetchNotes(true));
+    
+    // Export CSV
+    DOM.exportCsvBtn.addEventListener('click', exportToCSV);
     
     // Search filter
     DOM.searchInput.addEventListener('input', (e) => {
@@ -218,7 +222,8 @@ function formatDateString(rawDate) {
 // ==========================================================================
 function renderFeed() {
     // Filter notes
-    const filteredNotes = notes.filter(note => {
+function getFilteredNotes() {
+    return notes.filter(note => {
         const matchesCategory = filters.category === 'all' || 
             note.category.toLowerCase() === filters.category.toLowerCase() ||
             (filters.category === 'feature' && note.category.toLowerCase().includes('feature'));
@@ -230,6 +235,11 @@ function renderFeed() {
             
         return matchesCategory && matchesSearch;
     });
+}
+
+function renderFeed() {
+    // Filter notes
+    const filteredNotes = getFilteredNotes();
     
     // Reset view
     DOM.releaseList.innerHTML = '';
@@ -279,8 +289,12 @@ function renderFeed() {
             
             <div class="release-card-footer">
                 <button class="action-btn btn-copy" data-link="${note.link}" title="Copy link to clipboard">
-                    <i data-lucide="copy"></i>
+                    <i data-lucide="link"></i>
                     <span>Copy Link</span>
+                </button>
+                <button class="action-btn btn-copy-text" data-id="${note.id}" title="Copy plain text update to clipboard">
+                    <i data-lucide="copy"></i>
+                    <span>Copy Text</span>
                 </button>
                 <button class="action-btn btn-tweet" data-id="${note.id}">
                     <i data-lucide="twitter"></i>
@@ -330,6 +344,24 @@ function bindCardEvents() {
                     console.error("Clipboard copy failed:", err);
                     showToast("Failed to copy link.", "error");
                 });
+        });
+    });
+
+    // Copy Text button
+    DOM.releaseList.querySelectorAll('.btn-copy-text').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const id = e.currentTarget.dataset.id;
+            const note = notes.find(n => n.id === id);
+            if (note) {
+                const plainText = stripHtml(note.content).replace(/\s+/g, ' ').trim();
+                const copyStr = `BigQuery Update (${note.date} | ${note.category}):\n${plainText}\n\nLink: ${note.link}`;
+                navigator.clipboard.writeText(copyStr)
+                    .then(() => showToast("Copied text content to clipboard!", "success"))
+                    .catch(err => {
+                        console.error("Clipboard copy failed:", err);
+                        showToast("Failed to copy text.", "error");
+                    });
+            }
         });
     });
     
@@ -580,4 +612,57 @@ function showToast(message, type = "success") {
             toast.remove();
         });
     }, 3500);
+}
+
+// ==========================================================================
+// CSV Exporter Utility
+// ==========================================================================
+function exportToCSV() {
+    const dataToExport = getFilteredNotes();
+    if (dataToExport.length === 0) {
+        showToast("No updates to export!", "error");
+        return;
+    }
+    
+    // Prepare CSV headers
+    const headers = ["ID", "Date", "Category", "Content", "Link", "Updated (ISO)"];
+    
+    // Format rows
+    const rows = dataToExport.map(note => {
+        const plainTextContent = stripHtml(note.content).replace(/\s+/g, ' ').trim();
+        // Escape quotes for CSV
+        const escapeCSV = (str) => {
+            if (str === null || str === undefined) return "";
+            return '"' + String(str).replace(/"/g, '""') + '"';
+        };
+        return [
+            escapeCSV(note.id),
+            escapeCSV(note.date),
+            escapeCSV(note.category),
+            escapeCSV(plainTextContent),
+            escapeCSV(note.link),
+            escapeCSV(note.updated_iso)
+        ].join(",");
+    });
+    
+    // Prefix UTF-8 BOM so Excel decodes characters correctly
+    const csvContent = "\uFEFF" + [headers.join(","), ...rows].join("\n");
+    
+    // Create Blob and trigger download
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    
+    // Generate clean filename
+    const dateStr = new Date().toISOString().slice(0, 10);
+    const filterDesc = filters.category !== 'all' ? `_${filters.category}` : '';
+    link.setAttribute("download", `bigquery_release_notes_${dateStr}${filterDesc}.csv`);
+    
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    showToast(`Successfully exported ${dataToExport.length} updates to CSV!`, "success");
 }
