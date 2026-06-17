@@ -19,6 +19,7 @@ Built with **Python Flask** on the backend and **Vanilla HTML, CSS, and JS** on 
 - **Handy Utility Helpers**:
   - **Copy Text**: Copy fully formatted plain-text summaries (including date, category, details, and direct links) to your clipboard in one click.
   - **Export to CSV**: Download the *currently filtered list* of updates as a formatted CSV spreadsheet, pre-encoded with UTF-8 BOM for Microsoft Excel character support.
+- **Theme Switcher Toggle**: A header control switch that swaps between Matte Obsidian dark mode and slate light mode instantly via root CSS variable override overrides, with LocalStorage persistence.
 
 ---
 
