@@ -113,7 +113,39 @@ body {
 .logo-area {
     display: flex;
     align-items: center;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.logo-group {
+    display: flex;
+    align-items: center;
     gap: 1rem;
+}
+
+.theme-toggle {
+    background: none;
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.theme-toggle:hover {
+    color: var(--text-primary);
+    border-color: var(--border-hover);
+    background-color: var(--bg-tertiary);
+}
+
+.theme-toggle svg {
+    width: 18px;
+    height: 18px;
 }
 
 .logo-icon {
@@ -1240,3 +1272,125 @@ body {
 .justify-center {
     justify-content: center;
 }
+
+/* ==========================================================================
+   Light Mode Theme Variables & Component Overrides
+   ========================================================================== */
+body.light-theme {
+    --bg-primary: #f8fafc; /* Slate 50 */
+    --bg-secondary: #ffffff;
+    --bg-tertiary: #f1f5f9; /* Slate 100 */
+    --bg-card: rgba(255, 255, 255, 0.85);
+    
+    --border-color: rgba(15, 23, 42, 0.08);
+    --border-hover: rgba(245, 158, 11, 0.4);
+    
+    --text-primary: #0f172a; /* Slate 900 */
+    --text-secondary: #475569; /* Slate 600 */
+    --text-muted: #64748b; /* Slate 500 */
+    
+    /* Brand Accent Modifications for Light Backgrounds */
+    --google-blue: #d97706; /* Darker Amber Gold */
+    --google-blue-glow: rgba(217, 119, 6, 0.08);
+    --twitter-blue: #d97706;
+    --twitter-blue-glow: rgba(217, 119, 6, 0.08);
+    --twitter-hover: #b45309;
+    
+    /* High-contrast Category colors for Light Mode */
+    --color-feature: #047857; /* Darker Emerald */
+    --color-announcement: #7c3aed; /* Darker Violet */
+    --color-changed: #b45309; /* Darker Amber */
+    --color-deprecated: #e11d48; /* Darker Rose */
+    --color-fixed: #0f766e; /* Darker Teal */
+    --color-issue: #be123c; /* Darker Rose Red */
+    --color-default: #4b5563;
+}
+
+/* Light Theme Component Tweaks */
+body.light-theme .logo-text h1 {
+    background: linear-gradient(to right, #0f172a, #334155);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+body.light-theme .logo-icon {
+    box-shadow: 0 4px 12px rgba(217, 119, 6, 0.2);
+}
+
+body.light-theme .refresh-button {
+    color: #ffffff;
+    font-weight: 600;
+}
+
+body.light-theme .release-card:hover {
+    box-shadow: 0 8px 30px rgba(15, 23, 42, 0.06);
+}
+
+body.light-theme .release-card.selected {
+    background-color: rgba(217, 119, 6, 0.01);
+}
+
+body.light-theme .release-card-body code {
+    background-color: #f1f5f9;
+    color: #0f172a;
+    border-color: rgba(15, 23, 42, 0.05);
+}
+
+body.light-theme .release-card-body pre {
+    background-color: #f8fafc;
+}
+
+body.light-theme .custom-checkbox {
+    background-color: #f1f5f9;
+}
+
+body.light-theme .select-checkbox:checked ~ .custom-checkbox {
+    box-shadow: 0 0 10px rgba(217, 119, 6, 0.2);
+}
+
+body.light-theme .select-checkbox:checked ~ .custom-checkbox::after {
+    border-color: #ffffff;
+}
+
+body.light-theme .selection-drawer {
+    background-color: rgba(255, 255, 255, 0.95);
+    border-color: rgba(217, 119, 6, 0.25);
+    box-shadow: 0 10px 40px rgba(15, 23, 42, 0.12), 0 0 20px rgba(217, 119, 6, 0.04);
+}
+
+body.light-theme .selection-count {
+    color: #0f172a;
+}
+
+body.light-theme .drawer-hint {
+    color: #475569;
+}
+
+body.light-theme .modal-overlay {
+    background-color: rgba(15, 23, 42, 0.5);
+}
+
+body.light-theme .modal-container {
+    background-color: #ffffff;
+    box-shadow: 0 20px 50px rgba(15, 23, 42, 0.15);
+}
+
+body.light-theme .modal-header h2 {
+    color: #0f172a;
+}
+
+body.light-theme .form-group textarea {
+    background-color: #f8fafc;
+    color: #0f172a;
+}
+
+body.light-theme .summary-list li {
+    background-color: #f8fafc;
+    color: #475569;
+}
+
+body.light-theme .toast {
+    background-color: #ffffff;
+    box-shadow: 0 10px 25px rgba(15, 23, 42, 0.08);
+}
+

@@ -28,6 +28,8 @@ const DOM = {
     statLatestDate: document.getElementById('stat-latest-date'),
     resetFiltersBtn: document.getElementById('reset-filters-btn'),
     exportCsvBtn: document.getElementById('export-csv-btn'),
+    themeToggleBtn: document.getElementById('theme-toggle-btn'),
+    themeToggleIcon: document.getElementById('theme-toggle-icon'),
     
     // Drawer
     selectionDrawer: document.getElementById('selection-drawer'),
@@ -53,6 +55,9 @@ const DOM = {
 // Initialization & Event Binding
 // ==========================================================================
 document.addEventListener('DOMContentLoaded', () => {
+    // Initialise Theme
+    initializeTheme();
+    
     // Initialise Lucide icons
     if (window.lucide) {
         window.lucide.createIcons();
@@ -62,9 +67,50 @@ document.addEventListener('DOMContentLoaded', () => {
     fetchNotes(false);
 });
 
+// ==========================================================================
+// Theme Logic
+// ==========================================================================
+function initializeTheme() {
+    const savedTheme = localStorage.getItem('theme') || 'dark';
+    if (savedTheme === 'light') {
+        document.body.classList.add('light-theme');
+        updateThemeToggleIcon('moon');
+    } else {
+        document.body.classList.remove('light-theme');
+        updateThemeToggleIcon('sun');
+    }
+}
+
+function toggleTheme() {
+    const isLight = document.body.classList.contains('light-theme');
+    if (isLight) {
+        document.body.classList.remove('light-theme');
+        localStorage.setItem('theme', 'dark');
+        updateThemeToggleIcon('sun');
+        showToast("Switched to dark mode!", "success");
+    } else {
+        document.body.classList.add('light-theme');
+        localStorage.setItem('theme', 'light');
+        updateThemeToggleIcon('moon');
+        showToast("Switched to light mode!", "success");
+    }
+}
+
+function updateThemeToggleIcon(iconName) {
+    if (DOM.themeToggleIcon) {
+        DOM.themeToggleIcon.setAttribute('data-lucide', iconName);
+        if (window.lucide) {
+            window.lucide.createIcons();
+        }
+    }
+}
+
 function bindEvents() {
     // Refresh feed
     DOM.refreshBtn.addEventListener('click', () => fetchNotes(true));
+    
+    // Theme toggle
+    DOM.themeToggleBtn.addEventListener('click', toggleTheme);
     
     // Export CSV
     DOM.exportCsvBtn.addEventListener('click', exportToCSV);
