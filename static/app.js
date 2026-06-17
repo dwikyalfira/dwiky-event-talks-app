@@ -805,7 +805,11 @@ function highlightText(htmlContent, searchString) {
                 span.innerHTML = node.textContent.replace(regex, '<mark class="search-highlight">$1</mark>');
                 node.parentNode.replaceChild(span, node);
             }
-        } else if (node.nodeType === Node.ELEMENT_NODE && node.tagName !== 'A' && node.tagName !== 'CODE') {
+        } else if (node.nodeType === Node.ELEMENT_NODE && 
+                   node.tagName !== 'A' && 
+                   node.tagName !== 'CODE' && 
+                   node.tagName !== 'PRE' && 
+                   node.tagName !== 'BUTTON') {
             const children = Array.from(node.childNodes);
             children.forEach(traverse);
         }

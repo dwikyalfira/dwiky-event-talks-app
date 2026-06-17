@@ -16,10 +16,16 @@ Built with **Python Flask** on the backend and **Vanilla HTML, CSS, and JS** on 
 - **Smart Twitter Auto-Optimiser**: Dynamically compresses your tweet text, replacing lengthy words and collapsing spacing to fit under Twitter's 280-character limit while keeping target URLs intact.
 - **Caching & Fallbacks**: Utilizes a 5-minute server-side memory cache to reduce network latency. Automatically falls back to stale cache data with user-facing warnings if the GCP feed server goes offline.
 - **Responsive Layout**: Two-column dashboard design (sticky sidebar control panel on desktop, scrollable feed on the right) that fits mobile screens.
-- **Handy Utility Helpers**:
-  - **Copy Text**: Copy fully formatted plain-text summaries (including date, category, details, and direct links) to your clipboard in one click.
-  - **Export to CSV**: Download the *currently filtered list* of updates as a formatted CSV spreadsheet, pre-encoded with UTF-8 BOM for Microsoft Excel character support.
-- **Theme Switcher Toggle**: A header control switch that swaps between Matte Obsidian dark mode and slate light mode instantly via root CSS variable override overrides, with LocalStorage persistence.
+- **Theme Switcher Toggle**: A header control switch that swaps between Matte Obsidian dark mode and slate light mode instantly, with LocalStorage persistence.
+- **Collapsible Mobile Panel**: Prevents scroll fatigue on mobile by collapsing sidebar controls into an expander panel.
+- **Handy Utility & UX Helpers**:
+  - **Copy Text**: Copies a formatted plain-text description (date, category, content, and links) in one click.
+  - **Copy Code**: Hover copier button on code blocks (`pre` tags) to instantly copy code snippets.
+  - **Export to CSV**: Download the *currently filtered list* of updates as a UTF-8 BOM CSV spreadsheet.
+  - **Keyword Highlighting**: Glowing amber markers highlight search matches inside text segments (avoiding HTML anchor/code tags).
+  - **Back to Top Scroll**: A floating circle button appearing after scrolling down 400px to quickly snap back to top controls.
+  - **Keyboard Shortcut (`/`)**: Pressing `/` instantly focuses and selects the search input.
+  - **Drawer Character Estimator**: Displays a warning indicator in the bottom drawer if the selection length exceeds 280 characters.
 
 ---
 
