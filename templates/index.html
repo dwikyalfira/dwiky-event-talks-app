@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- SEO Meta Tags -->
+    <title>BigQuery Release Pulse | Interactive Google Cloud Changelog</title>
+    <meta name="description" content="Track the latest Google Cloud BigQuery features, deprecations, fixes, and announcements with this interactive changelog viewer. Select and share updates directly to Twitter.">
+    <meta name="keywords" content="BigQuery, Google Cloud, Release Notes, Changelog, Database, Data Warehouse, Twitter Share">
+    <meta name="author" content="BigQuery Pulse Team">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <!-- App Container -->
+    <div class="app-container">
+        
+        <!-- Sidebar / Header Area -->
+        <header class="app-header">
+            <div class="logo-area">
+                <div class="logo-icon">
+                    <i data-lucide="database" class="icon-bq"></i>
+                </div>
+                <div class="logo-text">
+                    <h1>BigQuery Release Pulse</h1>
+                    <span class="badge-live">Live Feed</span>
+                </div>
+            </div>
+            
+            <p class="app-description">
+                Monitor updates, features, deprecations, and fixes for Google Cloud BigQuery in real time. Select your favorite updates and share them on X (Twitter).
+            </p>
+            
+            <div class="stats-card">
+                <div class="stat-item">
+                    <span class="stat-value" id="stat-total-count">-</span>
+                    <span class="stat-label">Total Updates</span>
+                </div>
+                <div class="stat-divider"></div>
+                <div class="stat-item">
+                    <span class="stat-value" id="stat-latest-date">-</span>
+                    <span class="stat-label">Last Updated</span>
+                </div>
+            </div>
+            
+            <!-- Filter & Search Controls -->
+            <div class="controls-section">
+                <div class="search-box">
+                    <i data-lucide="search" class="search-icon"></i>
+                    <input type="text" id="search-input" placeholder="Search updates..." autocomplete="off">
+                    <button id="clear-search-btn" class="clear-btn" style="display: none;">
+                        <i data-lucide="x"></i>
+                    </button>
+                </div>
+                
+                <div class="filter-group">
+                    <span class="filter-title">Filter by Category</span>
+                    <div class="category-pills" id="category-pills-container">
+                        <button class="pill active" data-category="all" id="pill-all">All</button>
+                        <button class="pill" data-category="feature" id="pill-feature">Features</button>
+                        <button class="pill" data-category="announcement" id="pill-announcement">Announcements</button>
+                        <button class="pill" data-category="changed" id="pill-changed">Changed</button>
+                        <button class="pill" data-category="deprecated" id="pill-deprecated">Deprecated</button>
+                        <button class="pill" data-category="fixed" id="pill-fixed">Fixed</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="header-footer">
+                <button id="refresh-btn" class="refresh-button" aria-label="Refresh feed">
+                    <i data-lucide="refresh-cw" class="icon-refresh"></i>
+                    <span>Refresh Feed</span>
+                </button>
+                <div id="cache-info" class="cache-info">Checking status...</div>
+            </div>
+        </header>
+
+        <!-- Main Feed Area -->
+        <main class="feed-container">
+            <!-- Feed Status Alerts (Fallback warnings, errors, etc.) -->
+            <div id="status-alert" class="status-alert" style="display: none;">
+                <i data-lucide="alert-triangle" class="alert-icon"></i>
+                <span id="status-alert-text">Using cached data. Feed fetch failed.</span>
+            </div>
+
+            <!-- Loading State (Skeletons) -->
+            <div id="loading-state" class="loading-state">
+                <!-- Skeleton Card 1 -->
+                <div class="skeleton-card">
+                    <div class="skeleton-header">
+                        <div class="skeleton-date"></div>
+                        <div class="skeleton-badge"></div>
+                    </div>
+                    <div class="skeleton-body">
+                        <div class="skeleton-line short"></div>
+                        <div class="skeleton-line"></div>
+                        <div class="skeleton-line medium"></div>
+                    </div>
+                    <div class="skeleton-footer"></div>
+                </div>
+                <!-- Skeleton Card 2 -->
+                <div class="skeleton-card">
+                    <div class="skeleton-header">
+                        <div class="skeleton-date"></div>
+                        <div class="skeleton-badge"></div>
+                    </div>
+                    <div class="skeleton-body">
+                        <div class="skeleton-line"></div>
+                        <div class="skeleton-line short"></div>
+                    </div>
+                    <div class="skeleton-footer"></div>
+                </div>
+                <!-- Skeleton Card 3 -->
+                <div class="skeleton-card">
+                    <div class="skeleton-header">
+                        <div class="skeleton-date"></div>
+                        <div class="skeleton-badge"></div>
+                    </div>
+                    <div class="skeleton-body">
+                        <div class="skeleton-line medium"></div>
+                        <div class="skeleton-line"></div>
+                    </div>
+                    <div class="skeleton-footer"></div>
+                </div>
+            </div>
+
+            <!-- Empty State -->
+            <div id="empty-state" class="empty-state" style="display: none;">
+                <div class="empty-icon-container">
+                    <i data-lucide="inbox"></i>
+                </div>
+                <h3>No updates found</h3>
+                <p>Try refining your search query or choosing a different category filter.</p>
+                <button id="reset-filters-btn" class="secondary-btn">Reset Filters</button>
+            </div>
+
+            <!-- Release Notes List -->
+            <section class="release-list" id="release-list" aria-live="polite">
+                <!-- Rendered Dynamically by JS -->
+            </section>
+        </main>
+        
+    </div>
+
+    <!-- Sticky Selection Drawer (Tweet Compiler) -->
+    <div id="selection-drawer" class="selection-drawer">
+        <div class="drawer-content">
+            <div class="drawer-left">
+                <span class="selection-count">
+                    <span id="selected-count-badge">0</span> selected updates
+                </span>
+                <span class="drawer-hint">Combine multiple updates into a single tweet summary.</span>
+            </div>
+            <div class="drawer-actions">
+                <button id="clear-selection-btn" class="text-btn">Clear Selection</button>
+                <button id="open-tweet-modal-btn" class="tweet-primary-btn">
+                    <i data-lucide="twitter"></i>
+                    <span>Compile Tweet</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tweet Customizer Modal -->
+    <div id="tweet-modal" class="modal-overlay">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h2>
+                    <i data-lucide="twitter" class="modal-twitter-icon"></i>
+                    <span>Customize Your Tweet</span>
+                </h2>
+                <button id="close-modal-btn" class="close-btn" aria-label="Close modal">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="tweet-textarea">Tweet Content</label>
+                    <textarea id="tweet-textarea" rows="8" maxlength="280" placeholder="Write your tweet here..."></textarea>
+                    <div class="textarea-footer">
+                        <span id="char-counter" class="char-counter">0 / 280</span>
+                        <button id="optimize-tweet-btn" class="secondary-btn text-xs">
+                            <i data-lucide="sparkles"></i>
+                            <span>Shorten / Format</span>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="tweet-preview-section">
+                    <h3>Included Updates Summary:</h3>
+                    <ul id="selected-items-summary" class="summary-list">
+                        <!-- Filled by JS -->
+                    </ul>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="cancel-tweet-btn" class="secondary-btn">Cancel</button>
+                <button id="send-tweet-btn" class="tweet-primary-btn">
+                    <i data-lucide="external-link"></i>
+                    <span>Open Twitter / X</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom Toast Notification -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <!-- Custom JavaScript -->
+    <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>
