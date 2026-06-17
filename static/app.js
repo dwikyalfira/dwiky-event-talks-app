@@ -30,6 +30,9 @@ const DOM = {
     exportCsvBtn: document.getElementById('export-csv-btn'),
     themeToggleBtn: document.getElementById('theme-toggle-btn'),
     themeToggleIcon: document.getElementById('theme-toggle-icon'),
+    mobileFilterToggle: document.getElementById('mobile-filter-toggle'),
+    sidebarCollapsible: document.getElementById('sidebar-collapsible'),
+    backToTopBtn: document.getElementById('back-to-top-btn'),
     
     // Drawer
     selectionDrawer: document.getElementById('selection-drawer'),
@@ -112,6 +115,9 @@ function bindEvents() {
     // Theme toggle
     DOM.themeToggleBtn.addEventListener('click', toggleTheme);
     
+    // Mobile filter toggle
+    DOM.mobileFilterToggle.addEventListener('click', toggleMobileFilters);
+    
     // Export CSV
     DOM.exportCsvBtn.addEventListener('click', exportToCSV);
     
@@ -142,6 +148,11 @@ function bindEvents() {
         pill.classList.add('active');
         filters.category = pill.dataset.category;
         
+        // Auto collapse filters on mobile after selecting a pill
+        if (window.innerWidth < 1024) {
+            DOM.sidebarCollapsible.classList.remove('active');
+        }
+        
         renderFeed();
     });
     
@@ -168,6 +179,38 @@ function bindEvents() {
     DOM.sendTweetBtn.addEventListener('click', publishTweet);
     DOM.optimizeTweetBtn.addEventListener('click', optimizeTweet);
     DOM.tweetTextarea.addEventListener('input', updateCharCount);
+    
+    // Back to top scroll and click handlers
+    const feedContainer = document.querySelector('.feed-container');
+    const handleScroll = () => {
+        const scrollTarget = window.innerWidth >= 1024 ? feedContainer : window;
+        const scrollTop = scrollTarget === window ? window.scrollY : feedContainer.scrollTop;
+        if (scrollTop > 400) {
+            DOM.backToTopBtn.classList.add('active');
+        } else {
+            DOM.backToTopBtn.classList.remove('active');
+        }
+    };
+    
+    feedContainer.addEventListener('scroll', handleScroll);
+    window.addEventListener('scroll', handleScroll);
+    
+    DOM.backToTopBtn.addEventListener('click', () => {
+        if (window.innerWidth >= 1024) {
+            feedContainer.scrollTo({ top: 0, behavior: 'smooth' });
+        } else {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    });
+    
+    // Slash shortcut to search
+    document.addEventListener('keydown', (e) => {
+        if (e.key === '/' && document.activeElement !== DOM.searchInput && document.activeElement.tagName !== 'TEXTAREA' && document.activeElement.tagName !== 'INPUT') {
+            e.preventDefault();
+            DOM.searchInput.focus();
+            DOM.searchInput.select();
+        }
+    });
     
     // Close modal on escape key or clicking outside
     document.addEventListener('keydown', (e) => {
@@ -328,7 +371,7 @@ function renderFeed() {
             </div>
             
             <div class="release-card-body">
-                ${note.content}
+                ${highlightText(note.content, filters.search)}
             </div>
             
             <div class="release-card-footer">
@@ -352,6 +395,9 @@ function renderFeed() {
     
     // Re-bind dynamic event listeners on cards
     bindCardEvents();
+    
+    // Add copy button overlays on code snippets
+    addCodeCopyButtons();
     
     // Sync icons
     if (window.lucide) {
@@ -444,6 +490,19 @@ function updateSelectionDrawer() {
     
     if (count > 0) {
         DOM.selectionDrawer.classList.add('active');
+        
+        // Est character length warning
+        const estText = compileTweetText();
+        const warningIcon = document.getElementById('drawer-char-warning');
+        if (warningIcon) {
+            if (estText.length > 280) {
+                warningIcon.style.display = 'inline-flex';
+                DOM.selectedCountBadge.style.backgroundColor = 'var(--color-issue)'; // Warning color
+            } else {
+                warningIcon.style.display = 'none';
+                DOM.selectedCountBadge.style.backgroundColor = ''; // Reset to stylesheet default
+            }
+        }
     } else {
         DOM.selectionDrawer.classList.remove('active');
     }
@@ -709,4 +768,92 @@ function exportToCSV() {
     document.body.removeChild(link);
     
     showToast(`Successfully exported ${dataToExport.length} updates to CSV!`, "success");
+}
+
+// ==========================================================================
+// UX Enhancement Utilities
+// ==========================================================================
+function toggleMobileFilters() {
+    if (DOM.sidebarCollapsible) {
+        DOM.sidebarCollapsible.classList.toggle('active');
+        const isActive = DOM.sidebarCollapsible.classList.contains('active');
+        
+        // Sync lucide icon if needed
+        const icon = DOM.mobileFilterToggle.querySelector('i');
+        if (icon) {
+            icon.setAttribute('data-lucide', isActive ? 'x' : 'sliders-horizontal');
+            if (window.lucide) window.lucide.createIcons();
+        }
+        
+        showToast(isActive ? "Filter panel expanded" : "Filter panel collapsed", "success");
+    }
+}
+
+function highlightText(htmlContent, searchString) {
+    if (!searchString) return htmlContent;
+    
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = htmlContent;
+    
+    const regex = new RegExp(`(${escapeRegExp(searchString)})`, 'gi');
+    
+    function traverse(node) {
+        if (node.nodeType === Node.TEXT_NODE) {
+            const matches = node.textContent.match(regex);
+            if (matches) {
+                const span = document.createElement('span');
+                span.innerHTML = node.textContent.replace(regex, '<mark class="search-highlight">$1</mark>');
+                node.parentNode.replaceChild(span, node);
+            }
+        } else if (node.nodeType === Node.ELEMENT_NODE && node.tagName !== 'A' && node.tagName !== 'CODE') {
+            const children = Array.from(node.childNodes);
+            children.forEach(traverse);
+        }
+    }
+    
+    Array.from(tempDiv.childNodes).forEach(traverse);
+    return tempDiv.innerHTML;
+}
+
+function escapeRegExp(string) {
+    return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function addCodeCopyButtons() {
+    DOM.releaseList.querySelectorAll('.release-card-body pre').forEach(pre => {
+        if (pre.querySelector('.btn-copy-code')) return;
+        
+        pre.style.position = 'relative';
+        
+        const copyBtn = document.createElement('button');
+        copyBtn.className = 'btn-copy-code';
+        copyBtn.setAttribute('title', 'Copy code block');
+        copyBtn.innerHTML = '<i data-lucide="copy"></i>';
+        
+        pre.appendChild(copyBtn);
+        
+        copyBtn.addEventListener('click', () => {
+            const code = pre.querySelector('code');
+            const textToCopy = code ? code.textContent : pre.textContent;
+            
+            // Clean up text if it captured copyBtn contents
+            const textCleaned = textToCopy.replace(copyBtn.textContent, "").trim();
+            
+            navigator.clipboard.writeText(textCleaned)
+                .then(() => {
+                    copyBtn.innerHTML = '<i data-lucide="check"></i>';
+                    showToast("Code block copied!", "success");
+                    if (window.lucide) window.lucide.createIcons();
+                    
+                    setTimeout(() => {
+                        copyBtn.innerHTML = '<i data-lucide="copy"></i>';
+                        if (window.lucide) window.lucide.createIcons();
+                    }, 2000);
+                })
+                .catch(err => {
+                    console.error("Code copy failed:", err);
+                    showToast("Failed to copy code.", "error");
+                });
+        });
+    });
 }

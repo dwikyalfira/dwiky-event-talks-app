@@ -1394,3 +1394,195 @@ body.light-theme .toast {
     box-shadow: 0 10px 25px rgba(15, 23, 42, 0.08);
 }
 
+/* ==========================================================================
+   UX Audit Improvements (Highlighting, Copy buttons, Collapse, Back to Top)
+   ========================================================================== */
+
+/* 1. Mobile Filter Toggle Layout */
+.mobile-filter-btn {
+    display: none;
+}
+
+@media (max-width: 1023px) {
+    .mobile-filter-btn {
+        background: none;
+        border: 1px solid var(--border-color);
+        color: var(--text-secondary);
+        width: 38px;
+        height: 38px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all var(--transition-fast);
+    }
+    .mobile-filter-btn:hover {
+        color: var(--text-primary);
+        border-color: var(--border-hover);
+        background-color: var(--bg-tertiary);
+    }
+    .header-actions {
+        display: flex;
+        gap: 0.5rem;
+        align-items: center;
+    }
+    
+    .sidebar-collapsible {
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height var(--transition-normal) ease-in-out, opacity var(--transition-normal) ease-in-out;
+        opacity: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+    
+    .sidebar-collapsible.active {
+        max-height: 1000px;
+        opacity: 1;
+        margin-top: 1.25rem;
+        border-top: 1px solid var(--border-color);
+        padding-top: 1.25rem;
+    }
+}
+
+@media (min-width: 1024px) {
+    .sidebar-collapsible {
+        display: flex;
+        flex-direction: column;
+        gap: 1.75rem;
+        max-height: none !important;
+        opacity: 1 !important;
+    }
+}
+
+/* 2. Search Box Shortcut Hint */
+.search-shortcut-hint {
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    color: var(--text-muted);
+    font-size: 0.7rem;
+    padding: 0.15rem 0.35rem;
+    border-radius: 4px;
+    font-weight: 600;
+    pointer-events: none;
+    transition: opacity var(--transition-fast);
+}
+
+.search-box input:focus ~ .search-shortcut-hint {
+    opacity: 0;
+}
+
+/* 3. Search Keyword Highlighting */
+.search-highlight {
+    background-color: rgba(245, 158, 11, 0.25); /* Glow of Amber */
+    color: var(--text-primary);
+    border-radius: 4px;
+    padding: 0 0.15rem;
+    font-weight: 500;
+}
+body.light-theme .search-highlight {
+    background-color: rgba(217, 119, 6, 0.25);
+    color: #0f172a;
+}
+
+/* 4. Preformatted Copy Code Button */
+.btn-copy-code {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    background-color: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    width: 30px;
+    height: 30px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast);
+}
+
+pre:hover .btn-copy-code {
+    opacity: 1;
+}
+
+.btn-copy-code:hover {
+    color: var(--text-primary);
+    border-color: var(--border-hover);
+}
+
+.btn-copy-code svg {
+    width: 14px;
+    height: 14px;
+}
+
+/* 5. Back to Top Button */
+.back-to-top {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(10px);
+    transition: all var(--transition-normal);
+    z-index: 90;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+.back-to-top.active {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0);
+}
+
+.back-to-top:hover {
+    color: var(--text-primary);
+    border-color: var(--border-hover);
+    background-color: var(--bg-tertiary);
+    transform: translateY(-2px);
+}
+
+body.light-theme .back-to-top {
+    background-color: #ffffff;
+    box-shadow: 0 4px 15px rgba(15, 23, 42, 0.08);
+}
+
+.back-to-top svg {
+    width: 20px;
+    height: 20px;
+}
+
+/* 6. Live Character count warning in Drawer */
+.drawer-warning-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-issue);
+    vertical-align: middle;
+    margin-left: 0.5rem;
+}
+
+.drawer-warning-icon svg {
+    width: 16px;
+    height: 16px;
+    animation: skeleton-pulse 1.5s infinite;
+}
+

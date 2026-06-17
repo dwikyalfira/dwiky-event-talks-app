@@ -37,60 +37,68 @@
                         <span class="badge-live">Live Feed</span>
                     </div>
                 </div>
-                <button id="theme-toggle-btn" class="theme-toggle" aria-label="Toggle light/dark theme" title="Toggle theme">
-                    <i data-lucide="sun" id="theme-toggle-icon"></i>
-                </button>
-            </div>
-            
-            <p class="app-description">
-                Monitor updates, features, deprecations, and fixes for Google Cloud BigQuery in real time. Select your favorite updates and share them on X (Twitter).
-            </p>
-            
-            <div class="stats-card">
-                <div class="stat-item">
-                    <span class="stat-value" id="stat-total-count">-</span>
-                    <span class="stat-label">Total Updates</span>
-                </div>
-                <div class="stat-divider"></div>
-                <div class="stat-item">
-                    <span class="stat-value" id="stat-latest-date">-</span>
-                    <span class="stat-label">Last Updated</span>
-                </div>
-            </div>
-            
-            <!-- Filter & Search Controls -->
-            <div class="controls-section">
-                <div class="search-box">
-                    <i data-lucide="search" class="search-icon"></i>
-                    <input type="text" id="search-input" placeholder="Search updates..." autocomplete="off">
-                    <button id="clear-search-btn" class="clear-btn" style="display: none;">
-                        <i data-lucide="x"></i>
+                <div class="header-actions">
+                    <button id="mobile-filter-toggle" class="mobile-filter-btn" aria-label="Toggle filters" title="Toggle filters">
+                        <i data-lucide="sliders-horizontal"></i>
+                    </button>
+                    <button id="theme-toggle-btn" class="theme-toggle" aria-label="Toggle light/dark theme" title="Toggle theme">
+                        <i data-lucide="sun" id="theme-toggle-icon"></i>
                     </button>
                 </div>
-                
-                <div class="filter-group">
-                    <span class="filter-title">Filter by Category</span>
-                    <div class="category-pills" id="category-pills-container">
-                        <button class="pill active" data-category="all" id="pill-all">All</button>
-                        <button class="pill" data-category="feature" id="pill-feature">Features</button>
-                        <button class="pill" data-category="announcement" id="pill-announcement">Announcements</button>
-                        <button class="pill" data-category="changed" id="pill-changed">Changed</button>
-                        <button class="pill" data-category="deprecated" id="pill-deprecated">Deprecated</button>
-                        <button class="pill" data-category="fixed" id="pill-fixed">Fixed</button>
-                    </div>
-                </div>
             </div>
             
-            <div class="header-footer">
-                <button id="refresh-btn" class="refresh-button" aria-label="Refresh feed">
-                    <i data-lucide="refresh-cw" class="icon-refresh"></i>
-                    <span>Refresh Feed</span>
-                </button>
-                <button id="export-csv-btn" class="secondary-btn w-full justify-center" aria-label="Export active notes to CSV">
-                    <i data-lucide="download"></i>
-                    <span>Export to CSV</span>
-                </button>
-                <div id="cache-info" class="cache-info">Checking status...</div>
+            <div id="sidebar-collapsible" class="sidebar-collapsible">
+                <p class="app-description">
+                    Monitor updates, features, deprecations, and fixes for Google Cloud BigQuery in real time. Select your favorite updates and share them on X (Twitter).
+                </p>
+                
+                <div class="stats-card">
+                    <div class="stat-item">
+                        <span class="stat-value" id="stat-total-count">-</span>
+                        <span class="stat-label">Total Updates</span>
+                    </div>
+                    <div class="stat-divider"></div>
+                    <div class="stat-item">
+                        <span class="stat-value" id="stat-latest-date">-</span>
+                        <span class="stat-label">Last Updated</span>
+                    </div>
+                </div>
+                
+                <!-- Filter & Search Controls -->
+                <div class="controls-section">
+                    <div class="search-box">
+                        <i data-lucide="search" class="search-icon"></i>
+                        <input type="text" id="search-input" placeholder="Search updates..." autocomplete="off">
+                        <span class="search-shortcut-hint">/</span>
+                        <button id="clear-search-btn" class="clear-btn" style="display: none;">
+                            <i data-lucide="x"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <span class="filter-title">Filter by Category</span>
+                        <div class="category-pills" id="category-pills-container">
+                            <button class="pill active" data-category="all" id="pill-all">All</button>
+                            <button class="pill" data-category="feature" id="pill-feature">Features</button>
+                            <button class="pill" data-category="announcement" id="pill-announcement">Announcements</button>
+                            <button class="pill" data-category="changed" id="pill-changed">Changed</button>
+                            <button class="pill" data-category="deprecated" id="pill-deprecated">Deprecated</button>
+                            <button class="pill" data-category="fixed" id="pill-fixed">Fixed</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="header-footer">
+                    <button id="refresh-btn" class="refresh-button" aria-label="Refresh feed">
+                        <i data-lucide="refresh-cw" class="icon-refresh"></i>
+                        <span>Refresh Feed</span>
+                    </button>
+                    <button id="export-csv-btn" class="secondary-btn w-full justify-center" aria-label="Export active notes to CSV">
+                        <i data-lucide="download"></i>
+                        <span>Export to CSV</span>
+                    </button>
+                    <div id="cache-info" class="cache-info">Checking status...</div>
+                </div>
             </div>
         </header>
 
@@ -167,6 +175,9 @@
             <div class="drawer-left">
                 <span class="selection-count">
                     <span id="selected-count-badge">0</span> selected updates
+                    <span id="drawer-char-warning" class="drawer-warning-icon" style="display: none;" title="Est. tweet exceeds 280 characters!">
+                        <i data-lucide="alert-triangle"></i>
+                    </span>
                 </span>
                 <span class="drawer-hint">Combine multiple updates into a single tweet summary.</span>
             </div>
@@ -221,6 +232,11 @@
             </div>
         </div>
     </div>
+
+    <!-- Floating Back to Top Button -->
+    <button id="back-to-top-btn" class="back-to-top" aria-label="Scroll to top" title="Back to top">
+        <i data-lucide="arrow-up"></i>
+    </button>
 
     <!-- Custom Toast Notification -->
     <div id="toast-container" class="toast-container"></div>
